@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ChatGPT OS 1.0 Demo</title>
+<style>
+  body { font-family: sans-serif; background: #f0f0f0; }
+  #chat { width: 500px; margin: 50px auto; background: white; padding: 20px; border-radius: 10px; }
+  .message { margin: 5px 0; }
+  .user { color: blue; }
+  .bot { color: green; }
+  input { width: 80%; padding: 10px; }
+  button { padding: 10px; }
+</style>
+</head>
+<body>
+<div id="chat">
+  <div class="message bot">Hello! I'm ChatGPT OS 1.0. Ask me anything!</div>
+</div>
+<input id="userInput" placeholder="Type a message..." />
+<button onclick="sendMessage()">Send</button>
+
+<script>
+const chatDiv = document.getElementById('chat');
+
+function sendMessage() {
+    const input = document.getElementById('userInput');
+    const userText = input.value.trim();
+    if (!userText) return;
+
+    // Display user message
+    const userMsg = document.createElement('div');
+    userMsg.className = 'message user';
+    userMsg.textContent = "You: " + userText;
+    chatDiv.appendChild(userMsg);
+
+    // Clear input
+    input.value = '';
+
+    // Generate a fake AI response
+    const botMsg = document.createElement('div');
+    botMsg.className = 'message bot';
+    botMsg.textContent = "ChatGPT OS 1.0: " + getFakeResponse(userText);
+    chatDiv.appendChild(botMsg);
+
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function getFakeResponse(text) {
+    const responses = [
+        "That's interesting! Tell me more.",
+        "I see, let's think about that.",
+        "Hmm, I’d need more info to answer fully.",
+        "Haha, that’s funny!",
+        "I’m here to help you think through it."
+    ];
+    return responses[Math.floor(Math.random() * responses.length)];
+}
+</script>
+</body>
+</html>
