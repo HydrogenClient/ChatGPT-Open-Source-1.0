@@ -5,6 +5,8 @@
 The frontend is fully static and runs in the browser.  
 All AI inference is performed by the API you host and control.
 
+[ChatGPT Open-Source 1.0 API on Hugging Face Spaces](https://huggingface.co/spaces/CooLLaMACEO/ChatGPTOpenSource1.0)
+
 ## Features
 
 - ✅ **Static web frontend**  
