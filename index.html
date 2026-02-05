@@ -115,7 +115,7 @@
   }
   @keyframes pulse { 0%,100% { transform: scale(0.6); opacity: 0.3; } 50% { transform: scale(1.1); opacity: 1; } }
 
-  /* --- FIXED INPUT BOX --- */
+  /* --- FIXED NO-SCROLL INPUT BOX --- */
   .input-area-container {
     padding: 20px 20px 40px 20px;
     background: linear-gradient(transparent, var(--bg-color) 40%);
@@ -125,10 +125,10 @@
     max-width: 900px;
     margin: 0 auto;
     background: #202020;
-    border-radius: 28px;
+    border-radius: 32px;
     display: flex;
-    align-items: flex-end; /* Keeps button at the bottom as box grows */
-    padding: 8px 12px 8px 20px;
+    align-items: flex-end; 
+    padding: 10px 12px 10px 24px;
     gap: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     border: 1px solid #2a2a2a;
@@ -141,20 +141,21 @@
     border: none;
     outline: none;
     color: #fff;
-    font-size: 16px !important; /* Forces font size to stay constant */
-    padding: 10px 0;
+    font-size: 16px !important;
+    padding: 8px 0; /* Vertical padding centers the text */
     resize: none;
-    height: 24px; /* Starting height */
+    height: auto; 
     max-height: 200px;
     font-family: inherit;
     line-height: 1.5;
     box-sizing: border-box;
     display: block;
+    overflow: hidden; /* Hide scrollbar until max-height is reached */
   }
 
   #user-input::placeholder {
     color: #909090;
-    font-size: 16px;
+    opacity: 1;
   }
 
   #send-btn {
@@ -168,8 +169,8 @@
     justify-content: center;
     cursor: pointer;
     flex-shrink: 0;
-    margin-bottom: 2px; /* Tiny adjustment for alignment */
-    transition: background 0.2s;
+    margin-bottom: 2px;
+    transition: background 0.2s, transform 0.1s;
   }
 
   #send-btn svg {
@@ -181,6 +182,8 @@
     stroke-linecap: round;
     stroke-linejoin: round;
   }
+
+  #send-btn:active { transform: scale(0.9); }
 
   /* Context Menu */
   #context-menu {
@@ -194,6 +197,8 @@
   }
   .menu-item { padding: 10px 20px; cursor: pointer; font-size: 14px; border-radius: 6px; }
   .menu-item:hover { background: var(--accent); color: white; }
+
+  pre { background: #222; padding: 10px; border-radius: 8px; overflow-x: auto; }
 </style>
 </head>
 <body>
@@ -334,7 +339,7 @@
     chat.messages.push({ role: 'user', content: text });
     displayMessage('user', text);
     input.value = '';
-    input.style.height = '24px'; // Reset height
+    input.style.height = 'auto'; // Reset height properly
 
     const aiDiv = document.createElement('div');
     aiDiv.className = 'msg ai';
@@ -388,11 +393,17 @@
 
   sendBtn.addEventListener('click', sendMessage);
   
-  // FIXED AUTO-RESIZE LOGIC
+  // CLEAN AUTO-RESIZE WITHOUT JANK
   input.addEventListener('input', function() {
-    this.style.height = '24px'; // Base height
-    const newHeight = Math.min(this.scrollHeight, 200);
-    this.style.height = newHeight + 'px';
+    this.style.height = 'auto'; 
+    this.style.height = (this.scrollHeight) + 'px';
+    
+    // Toggle scrollbar only if it exceeds max height
+    if (this.scrollHeight > 200) {
+      this.style.overflowY = 'auto';
+    } else {
+      this.style.overflowY = 'hidden';
+    }
   });
 
   input.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
