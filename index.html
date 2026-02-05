@@ -144,9 +144,12 @@
   const chatWindow = document.getElementById('chat-window');
   const input = document.getElementById('user-input');
   const sendBtn = document.getElementById('send-btn');
+
+  // Hugging Face backend URL
   const API_URL = "https://coollamaceo-chatgptopensource1-0.hf.space/chat";
   const sessionId = "user-" + Math.random().toString(36).substring(7);
 
+  // Conversation memory
   const conversationHistory = [];
   const MAX_MEMORY = 20;
 
@@ -154,20 +157,14 @@
     chatWindow.scrollTop = chatWindow.scrollHeight;
   }
 
-  // Simple Markdown parser for bold (**text**) and inline code (`code`) + code blocks
+  // Simple Markdown parser: bold (**text**), inline code (`code`), code blocks (```code```)
   function parseMarkdown(text) {
-    // Code blocks (``` ... ```)
-    text = text.replace(/```([\s\S]*?)```/g, (match, p1) => {
-      return `<pre>${p1}</pre>`;
-    });
-    // Inline code (`...`)
-    text = text.replace(/`([^`]+)`/g, (match, p1) => {
-      return `<code>${p1}</code>`;
-    });
-    // Bold (**...**)
-    text = text.replace(/\*\*([^*]+)\*\*/g, (match, p1) => {
-      return `<b>${p1}</b>`;
-    });
+    // Code blocks
+    text = text.replace(/```([\s\S]*?)```/g, (match, p1) => `<pre>${p1}</pre>`);
+    // Inline code
+    text = text.replace(/`([^`]+)`/g, (match, p1) => `<code>${p1}</code>`);
+    // Bold
+    text = text.replace(/\*\*([^*]+)\*\*/g, (match, p1) => `<b>${p1}</b>`);
     return text;
   }
 
@@ -199,6 +196,7 @@
     scrollToBottom();
 
     try {
+      // Send memory + session_id to Hugging Face backend
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -209,7 +207,8 @@
       });
       const data = await res.json();
 
-      aiDiv.innerHTML = parseMarkdown(data.response); // Parse Markdown here
+      // Render AI message with Markdown
+      aiDiv.innerHTML = parseMarkdown(data.response);
       conversationHistory.push({ role: 'ai', content: data.response });
       if (conversationHistory.length > MAX_MEMORY) conversationHistory.splice(0, conversationHistory.length - MAX_MEMORY);
 
