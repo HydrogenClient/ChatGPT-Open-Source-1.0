@@ -1,212 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatGPT Open-Source 1.0</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body { background: #212121; color: #ececec; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; overflow-x: hidden; }
-        
-        /* The Big Welcome Header */
-        #welcome-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 60vh;
-            transition: opacity 0.5s ease;
-        }
-        #welcome-screen h1 { font-size: 32px; font-weight: 500; color: #fff; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChatGPT Open-Source 1.0</title>
+<style>
+  /* ---------------- Body ---------------- */
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #121212;
+    color: #ececec;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
 
-        #chat-window { 
-            max-width: 800px; 
-            margin: 0 auto; 
-            padding: 20px; 
-            padding-bottom: 180px; 
-            display: flex; 
-            flex-direction: column; 
-        }
+  /* ---------------- Chat Window ---------------- */
+  #chat-window {
+    flex: 1;
+    padding: 20px;
+    padding-bottom: 150px;
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+  }
 
-        .msg { margin-bottom: 20px; line-height: 1.6; padding: 12px 16px; border-radius: 12px; max-width: 85%; font-size: 16px; }
-        .user { background: #2f2f2f; align-self: flex-end; border: 1px solid #424242; white-space: pre-wrap; }
-        .ai { background: transparent; align-self: flex-start; white-space: pre-wrap; }
+  /* ---------------- Message Bubbles ---------------- */
+  .msg {
+    max-width: 75%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 16px;
+    line-height: 1.5;
+    word-wrap: break-word;
+    position: relative;
+  }
+  .user {
+    align-self: flex-end;
+    background: #2f2f2f;
+    border-bottom-right-radius: 4px;
+  }
+  .ai {
+    align-self: flex-start;
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-bottom-left-radius: 4px;
+  }
 
-        .input-area { position: fixed; bottom: 0; width: 100%; background: #212121; padding: 24px 0; }
-        
-        .input-bar { 
-            width: 90%; 
-            max-width: 768px; 
-            margin: 0 auto; 
-            background: #2f2f2f; 
-            border: 1px solid #424242;
-            border-radius: 32px; 
-            display: flex; 
-            align-items: flex-end; 
-            padding: 12px 16px;
-            box-sizing: border-box;
-        }
-        
-        .textarea-container { flex: 1; margin: 0 8px; display: flex; align-items: center; }
-        
-        textarea { 
-            width: 100%; 
-            border: none; 
-            background: transparent; 
-            font-size: 17px !important; /* Fixed font size to prevent shrinking */
-            line-height: 1.5; 
-            outline: none; 
-            resize: none; 
-            color: white; 
-            height: 26px; 
-            max-height: 200px; 
-            font-family: inherit;
-            padding: 2px 0;
-            display: block;
-            box-sizing: border-box;
-        }
+  /* ---------------- Typing Circle ---------------- */
+  .typing-circle {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-left: 5px;
+    background: white;
+    border-radius: 50%;
+    animation: pulse 1s infinite ease-in-out;
+    vertical-align: middle;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(0.5); opacity: 0.3; }
+    50% { transform: scale(1.2); opacity: 1; }
+  }
 
-        .icon-btn { 
-            background: none; border: none; color: #b4b4b4; font-size: 20px; 
-            cursor: pointer; padding: 6px; transition: color 0.2s; 
-            display: flex; align-items: center; justify-content: center;
-        }
+  /* ---------------- Input Bar ---------------- */
+  .input-area {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: #121212;
+    padding: 16px 0;
+    border-top: 1px solid #333;
+  }
 
-        /* --- THE UPGRADED DYNAMIC BUTTON --- */
-        .send-btn {
-            background: white; 
-            color: black; 
-            border: none; 
-            border-radius: 50%;
-            width: 40px; /* Bigger button */
-            height: 40px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            cursor: pointer; 
-            transition: all 0.2s ease;
-            flex-shrink: 0;
-            margin-bottom: 2px;
-        }
+  .input-bar {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    align-items: flex-end;
+    background: #1f1f1f;
+    border-radius: 32px;
+    padding: 10px 16px;
+    box-sizing: border-box;
+    gap: 8px;
+  }
 
-        /* WAVEFORM ICON (Bigger & Thicker) */
-        .send-btn svg {
-            width: 24px; /* Increased size */
-            height: 24px;
-            fill: currentColor;
-        }
+  textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    color: white;
+    font-size: 16px;
+    line-height: 1.4;
+    height: 28px;
+    max-height: 200px;
+    font-family: inherit;
+  }
 
-        #arrow-icon { display: none; }
-        #waveform-icon { display: block; }
-
-        .send-btn.active #arrow-icon { display: block; }
-        .send-btn.active #waveform-icon { display: none; }
-
-        .thinking { font-style: italic; color: #888; margin-top: 10px; }
-    </style>
+  .send-btn {
+    background: #10a37f;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+  }
+  .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .send-btn svg { width: 20px; height: 20px; fill: white; }
+</style>
 </head>
 <body>
-
-<div id="welcome-screen">
-    <h1>What's on the agenda today?</h1>
-</div>
 
 <div id="chat-window"></div>
 
 <div class="input-area">
-    <div class="input-bar">
-        <button class="icon-btn">
-            <i class="fas fa-plus"></i>
-        </button>
-
-        <div class="textarea-container">
-            <textarea id="user-input" placeholder="Ask anything" rows="1"></textarea>
-        </div>
-
-        <button id="send-btn" class="send-btn">
-            <svg id="waveform-icon" viewBox="0 0 24 24">
-                <rect x="6" y="9" width="2" height="6" rx="1"/>
-                <rect x="11" y="5" width="2" height="14" rx="1"/>
-                <rect x="16" y="9" width="2" height="6" rx="1"/>
-            </svg>
-            <svg id="arrow-icon" viewBox="0 0 24 24">
-                <path d="M7 11L12 6L17 11M12 18V7" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            </svg>
-        </button>
-    </div>
+  <div class="input-bar">
+    <textarea id="user-input" placeholder="Ask anything..."></textarea>
+    <button id="send-btn">
+      <svg viewBox="0 0 24 24">
+        <path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/>
+      </svg>
+    </button>
+  </div>
 </div>
 
 <script>
-    const input = document.getElementById('user-input');
-    const sendBtn = document.getElementById('send-btn');
-    const chatWindow = document.getElementById('chat-window');
-    const welcomeScreen = document.getElementById('welcome-screen');
+  const chatWindow = document.getElementById('chat-window');
+  const input = document.getElementById('user-input');
+  const sendBtn = document.getElementById('send-btn');
+  const API_URL = "https://coollamaceo-chatgptopensource1-0.hf.space/chat";
+  const sessionId = "user-" + Math.random().toString(36).substring(7);
 
-    const API_URL = "https://coollamaceo-chatgptopensource1-0.hf.space/chat";
-    const sessionId = "user-" + Math.random().toString(36).substring(7);
+  function scrollToBottom() {
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
 
-    input.addEventListener('input', function() {
-        // Fix for the shrinking text issue
-        this.style.height = 'auto';
-        this.style.height = (this.scrollHeight) + 'px';
+  async function sendMessage() {
+    const text = input.value.trim();
+    if (!text) return;
 
-        if (this.value.trim() !== "") {
-            sendBtn.classList.add('active');
-        } else {
-            sendBtn.classList.remove('active');
-        }
-    });
+    // Add user message
+    const userDiv = document.createElement('div');
+    userDiv.className = 'msg user';
+    userDiv.innerText = text;
+    chatWindow.appendChild(userDiv);
 
-    async function sendMessage() {
-        const text = input.value.trim();
-        if (!text) return;
+    input.value = '';
+    input.style.height = '28px';
+    scrollToBottom();
 
-        // Hide welcome screen on first message
-        if (welcomeScreen) welcomeScreen.style.display = 'none';
+    // Add AI message with typing circle
+    const aiDiv = document.createElement('div');
+    aiDiv.className = 'msg ai';
+    const circle = document.createElement('span');
+    circle.className = 'typing-circle';
+    aiDiv.appendChild(circle);
+    chatWindow.appendChild(aiDiv);
+    scrollToBottom();
 
-        const userDiv = document.createElement('div');
-        userDiv.className = 'msg user';
-        userDiv.innerText = text;
-        chatWindow.appendChild(userDiv);
-
-        input.value = '';
-        input.style.height = '26px';
-        sendBtn.classList.remove('active');
-
-        const thinking = document.createElement('div');
-        thinking.className = 'msg ai thinking';
-        thinking.innerText = 'ChatGPT is thinking...';
-        chatWindow.appendChild(thinking);
-        window.scrollTo(0, document.body.scrollHeight);
-
-        try {
-            const res = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text, session_id: sessionId })
-            });
-            const data = await res.json();
-            thinking.remove();
-            const aiDiv = document.createElement('div');
-            aiDiv.className = 'msg ai';
-            aiDiv.innerText = data.response;
-            chatWindow.appendChild(aiDiv);
-        } catch (e) {
-            thinking.innerText = "Error: Space connection failed.";
-        }
-        window.scrollTo(0, document.body.scrollHeight);
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, session_id: sessionId })
+      });
+      const data = await res.json();
+      aiDiv.innerHTML = data.response;
+      scrollToBottom();
+    } catch (e) {
+      aiDiv.innerText = "Error: Could not connect to AI.";
     }
+  }
 
-    sendBtn.addEventListener('click', () => {
-        if(sendBtn.classList.contains('active')) sendMessage();
-    });
+  sendBtn.addEventListener('click', sendMessage);
 
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
+  input.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = input.scrollHeight + 'px';
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' && !e.shiftKey){
+      e.preventDefault();
+      sendMessage();
+    }
+  });
 </script>
 
 </body>
