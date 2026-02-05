@@ -1,39 +1,28 @@
-# ChatGPT Open-Source 1.0 Demo
+# ChatGPT Open-Source 1.0
 
-Welcome to **ChatGPT OS 1.0**, a local, high-performance AI assistant built from open-source models and tools.  
-
-This demo shows a **browser-based chat interface** where you can interact with ChatGPT OS 1.0 **without any server or API**. All responses are simulated for now, giving you a feel of the AI experience.  
+**ChatGPT OS 1.0** is a high-performance, open-source AI assistant built from GGUF models and fully customizable open-source tools. It can run **locally** with your own backend or entirely in the browser for demo purposes.
 
 ---
 
 ## Features
 
-- Fully **frontend-only**: no Python, no API, no LM Studio required for this demo  
-- Interactive **chat interface** with user and AI messages  
-- Simple, fun, and lightweight — runs entirely in your browser  
-- Future-ready: can be connected to **FastAPI + LM Studio** to run real AI responses  
+- ✅ **Local or API-powered AI**: Connect your frontend to a FastAPI backend running your GGUF model for real AI responses.  
+- ✅ **Interactive chat interface**: User and AI messages in a simple, lightweight browser interface.  
+- ✅ **Frontend-only demo available**: Simulated responses let you test the UI without Python or a backend.  
+- ✅ **Future-ready**: Ready to extend with per-user API keys, rate limits, offline support, and improved UI styling.  
 
 ---
 
-## How to Use
+## Getting Started
 
-1. Clone or download this repository  
-2. Open `index.html` in your browser  
-3. Type a message in the input box and click **Send**  
-4. ChatGPT OS 1.0 will reply with simulated AI responses  
+### Demo Mode (No Backend)
+1. Clone or download this repository.  
+2. Open `index.html` in your browser.  
+3. Type a message and click **Send**.  
+4. ChatGPT OS 1.0 will reply with simulated AI responses.  
 
----
+### API Mode (Real AI)
+1. Run your FastAPI backend locally or on a server:
 
-## Future Plans
-
-- Connect the demo to your **local FastAPI server** for real AI responses  
-- Add **per-user API keys and rate limits**  
-- Improve styling to match ChatGPT web interface  
-- Support offline ChatGPT OS 1.0 interactions with LM Studio  
-
----
-
-## License
-
-This project is licensed under **Apache 2.0**, keeping it fully **open-source and free** for anyone to try and modify.  
-
+```bash
+uvicorn app:app --host 0.0.0.0 --port 8000
