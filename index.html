@@ -33,7 +33,7 @@
     line-height: 1.5;
     word-wrap: break-word;
     position: relative;
-    white-space: pre-wrap; /* preserve line breaks */
+    white-space: pre-wrap;
   }
   .user {
     align-self: flex-end;
@@ -108,7 +108,7 @@
   .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .send-btn svg { width: 20px; height: 20px; fill: white; }
 
-  /* Code formatting */
+  /* Markdown formatting */
   pre { 
     background: #222; 
     padding: 8px; 
@@ -123,6 +123,14 @@
     border-radius: 4px; 
     font-family: monospace; 
   }
+  h1 { font-size: 1.8em; margin: 8px 0; color: #10a37f; }
+  h2 { font-size: 1.5em; margin: 6px 0; color: #10a37f; }
+  h3 { font-size: 1.3em; margin: 4px 0; color: #10a37f; }
+  blockquote { border-left: 3px solid #10a37f; padding-left: 12px; color: #a0a0a0; margin: 6px 0; }
+  ul { margin: 6px 0 6px 20px; }
+  li { margin-bottom: 4px; }
+  b { font-weight: bold; }
+  i { font-style: italic; }
 </style>
 </head>
 <body>
@@ -145,11 +153,9 @@
   const input = document.getElementById('user-input');
   const sendBtn = document.getElementById('send-btn');
 
-  // Hugging Face backend URL
   const API_URL = "https://coollamaceo-chatgptopensource1-0.hf.space/chat";
   const sessionId = "user-" + Math.random().toString(36).substring(7);
 
-  // Conversation memory
   const conversationHistory = [];
   const MAX_MEMORY = 20;
 
@@ -157,14 +163,34 @@
     chatWindow.scrollTop = chatWindow.scrollHeight;
   }
 
-  // Simple Markdown parser: bold (**text**), inline code (`code`), code blocks (```code```)
+  // Enhanced Markdown parser
   function parseMarkdown(text) {
+    text = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
     // Code blocks
     text = text.replace(/```([\s\S]*?)```/g, (match, p1) => `<pre>${p1}</pre>`);
+
     // Inline code
     text = text.replace(/`([^`]+)`/g, (match, p1) => `<code>${p1}</code>`);
+
     // Bold
     text = text.replace(/\*\*([^*]+)\*\*/g, (match, p1) => `<b>${p1}</b>`);
+
+    // Italic
+    text = text.replace(/\*([^*]+)\*/g, (match, p1) => `<i>${p1}</i>`);
+
+    // Headings
+    text = text.replace(/^### (.+)$/gm, (match, p1) => `<h3>${p1}</h3>`);
+    text = text.replace(/^## (.+)$/gm, (match, p1) => `<h2>${p1}</h2>`);
+    text = text.replace(/^# (.+)$/gm, (match, p1) => `<h1>${p1}</h1>`);
+
+    // Blockquotes
+    text = text.replace(/^> (.+)$/gm, (match, p1) => `<blockquote>${p1}</blockquote>`);
+
+    // Lists
+    text = text.replace(/^\s*[-*] (.+)$/gm, (match, p1) => `<li>${p1}</li>`);
+    text = text.replace(/(<li>[\s\S]+?<\/li>)/g, (match) => `<ul>${match}</ul>`);
+
     return text;
   }
 
@@ -172,13 +198,12 @@
     const text = input.value.trim();
     if (!text) return;
 
-    // Add user message
+    // User message
     const userDiv = document.createElement('div');
     userDiv.className = 'msg user';
     userDiv.innerText = text;
     chatWindow.appendChild(userDiv);
 
-    // Save to memory
     conversationHistory.push({ role: 'user', content: text });
     if (conversationHistory.length > MAX_MEMORY) conversationHistory.splice(0, conversationHistory.length - MAX_MEMORY);
 
@@ -186,7 +211,7 @@
     input.style.height = '28px';
     scrollToBottom();
 
-    // Add AI typing circle
+    // AI typing circle
     const aiDiv = document.createElement('div');
     aiDiv.className = 'msg ai';
     const circle = document.createElement('span');
@@ -196,18 +221,13 @@
     scrollToBottom();
 
     try {
-      // FIX: Changed "messages: conversationHistory" to "message: text" to match your backend
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          session_id: sessionId,
-          message: text 
-        })
+        body: JSON.stringify({ session_id: sessionId, message: text })
       });
       const data = await res.json();
 
-      // Render AI message with Markdown
       aiDiv.innerHTML = parseMarkdown(data.response);
       conversationHistory.push({ role: 'ai', content: data.response });
       if (conversationHistory.length > MAX_MEMORY) conversationHistory.splice(0, conversationHistory.length - MAX_MEMORY);
