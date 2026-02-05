@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChatGPT Open-Source 1.0</title>
+<title>ChatGPT Open-Source</title>
 <style>
-  /* ---------------- Body ---------------- */
   body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -15,8 +14,6 @@
     flex-direction: column;
     height: 100vh;
   }
-
-  /* ---------------- Chat Window ---------------- */
   #chat-window {
     flex: 1;
     padding: 20px;
@@ -28,8 +25,6 @@
     gap: 12px;
     overflow-y: auto;
   }
-
-  /* ---------------- Message Bubbles ---------------- */
   .msg {
     max-width: 75%;
     padding: 12px 16px;
@@ -38,6 +33,7 @@
     line-height: 1.5;
     word-wrap: break-word;
     position: relative;
+    white-space: pre-wrap; /* preserve line breaks */
   }
   .user {
     align-self: flex-end;
@@ -50,8 +46,6 @@
     border: 1px solid #333;
     border-bottom-left-radius: 4px;
   }
-
-  /* ---------------- Typing Circle ---------------- */
   .typing-circle {
     display: inline-block;
     width: 12px;
@@ -66,8 +60,6 @@
     0%,100% { transform: scale(0.5); opacity: 0.3; }
     50% { transform: scale(1.2); opacity: 1; }
   }
-
-  /* ---------------- Input Bar ---------------- */
   .input-area {
     position: fixed;
     bottom: 0;
@@ -76,7 +68,6 @@
     padding: 16px 0;
     border-top: 1px solid #333;
   }
-
   .input-bar {
     max-width: 800px;
     margin: 0 auto;
@@ -88,7 +79,6 @@
     box-sizing: border-box;
     gap: 8px;
   }
-
   textarea {
     flex: 1;
     background: transparent;
@@ -102,7 +92,6 @@
     max-height: 200px;
     font-family: inherit;
   }
-
   .send-btn {
     background: #10a37f;
     border: none;
@@ -118,6 +107,22 @@
   }
   .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .send-btn svg { width: 20px; height: 20px; fill: white; }
+
+  /* Code formatting */
+  pre { 
+    background: #222; 
+    padding: 8px; 
+    border-radius: 8px; 
+    overflow-x: auto; 
+    font-family: monospace; 
+    margin: 6px 0; 
+  }
+  code { 
+    background: #333; 
+    padding: 2px 4px; 
+    border-radius: 4px; 
+    font-family: monospace; 
+  }
 </style>
 </head>
 <body>
@@ -142,8 +147,28 @@
   const API_URL = "https://coollamaceo-chatgptopensource1-0.hf.space/chat";
   const sessionId = "user-" + Math.random().toString(36).substring(7);
 
+  const conversationHistory = [];
+  const MAX_MEMORY = 20;
+
   function scrollToBottom() {
     chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  // Simple Markdown parser for bold (**text**) and inline code (`code`) + code blocks
+  function parseMarkdown(text) {
+    // Code blocks (``` ... ```)
+    text = text.replace(/```([\s\S]*?)```/g, (match, p1) => {
+      return `<pre>${p1}</pre>`;
+    });
+    // Inline code (`...`)
+    text = text.replace(/`([^`]+)`/g, (match, p1) => {
+      return `<code>${p1}</code>`;
+    });
+    // Bold (**...**)
+    text = text.replace(/\*\*([^*]+)\*\*/g, (match, p1) => {
+      return `<b>${p1}</b>`;
+    });
+    return text;
   }
 
   async function sendMessage() {
@@ -156,11 +181,15 @@
     userDiv.innerText = text;
     chatWindow.appendChild(userDiv);
 
+    // Save to memory
+    conversationHistory.push({ role: 'user', content: text });
+    if (conversationHistory.length > MAX_MEMORY) conversationHistory.splice(0, conversationHistory.length - MAX_MEMORY);
+
     input.value = '';
     input.style.height = '28px';
     scrollToBottom();
 
-    // Add AI message with typing circle
+    // Add AI typing circle
     const aiDiv = document.createElement('div');
     aiDiv.className = 'msg ai';
     const circle = document.createElement('span');
@@ -173,10 +202,17 @@
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, session_id: sessionId })
+        body: JSON.stringify({ 
+          session_id: sessionId,
+          messages: conversationHistory
+        })
       });
       const data = await res.json();
-      aiDiv.innerHTML = data.response;
+
+      aiDiv.innerHTML = parseMarkdown(data.response); // Parse Markdown here
+      conversationHistory.push({ role: 'ai', content: data.response });
+      if (conversationHistory.length > MAX_MEMORY) conversationHistory.splice(0, conversationHistory.length - MAX_MEMORY);
+
       scrollToBottom();
     } catch (e) {
       aiDiv.innerText = "Error: Could not connect to AI.";
