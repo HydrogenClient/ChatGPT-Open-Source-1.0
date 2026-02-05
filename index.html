@@ -19,7 +19,7 @@
 
   body {
     margin: 0;
-    font-family: 'Inter', -apple-system, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background: var(--bg-color);
     color: var(--text-main);
     display: flex;
@@ -54,7 +54,7 @@
     background: #1a1a1a;
     color: white;
     padding: 12px;
-    border-radius: 12px;
+    border-radius: 10px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -63,7 +63,7 @@
     font-weight: 500;
   }
 
-  #chat-list { flex: 1; overflow-y: auto; }
+  #chat-list { flex: 1; overflow-y: auto; scrollbar-width: none; }
   .chat-item {
     padding: 10px 12px;
     margin-bottom: 4px;
@@ -75,7 +75,7 @@
     text-overflow: ellipsis;
     color: var(--text-muted);
   }
-  .chat-item.active { background: #222; color: white; }
+  .chat-item.active { background: #222; color: white; border: 1px solid #333; }
 
   /* Main Area */
   #main-container {
@@ -92,7 +92,7 @@
     font-size: 15px;
     color: var(--text-main);
     text-align: center;
-    background: rgba(13, 13, 13, 0.7);
+    background: rgba(13, 13, 13, 0.5);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border);
   }
@@ -109,11 +109,27 @@
     overflow-y: auto;
   }
 
-  .msg { max-width: 85%; padding: 14px 20px; border-radius: 20px; font-size: 15px; line-height: 1.6; }
-  .user { align-self: flex-end; background: var(--user-msg-bg); }
-  .ai { align-self: flex-start; background: var(--ai-msg-bg); border: 1px solid var(--border); }
+  .msg { max-width: 80%; padding: 12px 18px; border-radius: 18px; font-size: 16px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
+  .user { align-self: flex-end; background: var(--user-msg-bg); border-bottom-right-radius: 4px; }
+  .ai { align-self: flex-start; background: var(--ai-msg-bg); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
 
-  /* --- FULLY REDESIGNED INPUT & BUTTON --- */
+  /* RESTORED ORIGINAL THINKING ANIMATION */
+  .typing-circle {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-left: 5px;
+    background: white;
+    border-radius: 50%;
+    animation: pulse 1s infinite ease-in-out;
+    vertical-align: middle;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(0.5); opacity: 0.3; }
+    50% { transform: scale(1.2); opacity: 1; }
+  }
+
+  /* NEW INPUT & BUTTON UI */
   .input-area-container {
     padding: 20px 20px 40px 20px;
     background: linear-gradient(transparent, var(--bg-color) 40%);
@@ -122,21 +138,15 @@
   .modern-input-box {
     max-width: 760px;
     margin: 0 auto;
-    background: rgba(45, 45, 45, 0.6);
+    background: rgba(40, 40, 40, 0.7);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 28px;
+    border-radius: 30px;
     display: flex;
     align-items: flex-end;
-    padding: 10px 14px;
+    padding: 10px 16px;
     gap: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-    transition: transform 0.2s ease, border-color 0.2s ease;
-  }
-
-  .modern-input-box:focus-within {
-    border-color: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   }
 
   #user-input {
@@ -146,58 +156,37 @@
     outline: none;
     color: #fff;
     font-size: 16px;
-    padding: 10px 6px;
+    padding: 12px 4px;
     resize: none;
     max-height: 200px;
     font-family: inherit;
-    line-height: 1.4;
   }
 
   /* THE NEW BUTTON */
   #send-btn {
-    width: 42px;
-    height: 42px;
-    background: #fff; /* High contrast white circle */
+    width: 44px;
+    height: 44px;
+    background: #ffffff;
     border: none;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     flex-shrink: 0;
-    margin-bottom: 2px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    margin-bottom: 4px;
+    transition: transform 0.2s;
   }
 
   #send-btn svg {
     width: 22px;
     height: 22px;
-    fill: none;
-    stroke: #000; /* Sharp black arrow */
-    stroke-width: 2.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    transform: rotate(45deg); /* Angled for style */
+    fill: #000000;
   }
 
-  #send-btn:hover {
-    transform: scale(1.1) rotate(-5deg);
-    background: var(--accent);
-  }
-
-  #send-btn:hover svg {
-    stroke: #fff; /* Turns white on green hover */
-  }
-
-  #send-btn:active {
-    transform: scale(0.9);
-  }
-
-  #send-btn:disabled {
-    background: #333;
-    opacity: 0.5;
-  }
+  #send-btn:hover { transform: scale(1.08); background: var(--accent); }
+  #send-btn:hover svg { fill: #fff; }
+  #send-btn:disabled { opacity: 0.3; background: #555; }
 
   /* Context Menu */
   #context-menu {
@@ -208,10 +197,13 @@
     padding: 6px;
     display: none;
     z-index: 1000;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
   }
-
-  .menu-item { padding: 10px 20px; cursor: pointer; font-size: 14px; border-radius: 6px; }
+  .menu-item { padding: 10px 20px; cursor: pointer; font-size: 14px; border-radius: 6px; color: white; }
   .menu-item:hover { background: var(--accent); }
+
+  pre { background: #222; padding: 10px; border-radius: 8px; overflow-x: auto; }
+  code { background: #333; padding: 2px 4px; border-radius: 4px; }
 </style>
 </head>
 <body>
@@ -229,12 +221,9 @@
   
   <div class="input-area-container">
     <div class="modern-input-box">
-      <textarea id="user-input" placeholder="How can I help you today?" rows="1"></textarea>
+      <textarea id="user-input" placeholder="Message ChatGPT..." rows="1"></textarea>
       <button id="send-btn">
-        <svg viewBox="0 0 24 24">
-          <line x1="22" y1="2" x2="11" y2="13"></line>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-        </svg>
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2v7z"/></svg>
       </button>
     </div>
   </div>
@@ -263,9 +252,9 @@
     reset() {
       this.x = Math.random() * canvas.width;
       this.y = -50;
-      this.speed = 2 + Math.random() * 4;
-      this.len = 30 + Math.random() * 50;
-      this.opacity = 0.2 + Math.random() * 0.5;
+      this.speed = 2 + Math.random() * 3;
+      this.len = 20 + Math.random() * 40;
+      this.opacity = 0.1 + Math.random() * 0.4;
     }
     update() {
       this.y += this.speed;
@@ -274,15 +263,14 @@
     }
     draw() {
       ctx.strokeStyle = `rgba(255, 255, 255, ${this.opacity})`;
-      ctx.lineWidth = 1.5;
+      ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(this.x, this.y);
       ctx.lineTo(this.x - this.len, this.y - this.len);
       ctx.stroke();
     }
   }
-
-  for(let i=0; i<12; i++) meteors.push(new Meteor());
+  for(let i=0; i<15; i++) meteors.push(new Meteor());
 
   function animate() {
     ctx.clearRect(0,0,canvas.width, canvas.height);
@@ -320,7 +308,7 @@
   }
 
   function startNewChat() {
-    const id = Date.now().toString();
+    const id = "chat-" + Date.now();
     chats.unshift({ id, title: 'New Chat', messages: [] });
     currentChatId = id;
     saveToCache();
@@ -355,10 +343,14 @@
     input.value = '';
     input.style.height = 'auto';
 
+    // RESTORED AI THINKING ANIMATION
     const aiDiv = document.createElement('div');
     aiDiv.className = 'msg ai';
-    aiDiv.innerHTML = '...';
+    const circle = document.createElement('span');
+    circle.className = 'typing-circle';
+    aiDiv.appendChild(circle);
     chatWindow.appendChild(aiDiv);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
 
     try {
       const res = await fetch("https://coollamaceo-chatgptopensource1-0.hf.space/chat", {
@@ -371,7 +363,7 @@
       aiDiv.innerHTML = parseMarkdown(data.response);
       saveToCache();
       chatWindow.scrollTop = chatWindow.scrollHeight;
-    } catch (e) { aiDiv.innerText = "Error connecting."; }
+    } catch (e) { aiDiv.innerText = "Error connecting to AI."; }
   }
 
   function showContextMenu(e, id) {
@@ -396,6 +388,7 @@
   }
 
   function parseMarkdown(t) {
+    t = t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     return t.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
             .replace(/```([\s\S]*?)```/g, '<pre>$1</pre>')
             .replace(/`([^`]+)`/g, '<code>$1</code>');
