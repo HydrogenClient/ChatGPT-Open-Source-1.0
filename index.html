@@ -15,6 +15,7 @@
     --text-main: #e5e5e5;
     --text-muted: #b0b0b0;
     --border: #333;
+    --input-focus: #404040;
   }
 
   body {
@@ -27,7 +28,6 @@
     overflow: hidden;
   }
 
-  /* Meteor Canvas */
   #meteor-canvas {
     position: fixed;
     top: 0;
@@ -36,6 +36,7 @@
     height: 100%;
     z-index: 0;
     pointer-events: none;
+    opacity: 0.6;
   }
 
   /* Sidebar */
@@ -51,36 +52,34 @@
 
   .new-chat-btn {
     border: 1px solid var(--border);
-    background: transparent;
+    background: #1a1a1a;
     color: white;
     padding: 12px;
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 10px;
     margin-bottom: 20px;
+    font-weight: 500;
+    transition: all 0.2s;
   }
+  .new-chat-btn:hover { background: #262626; border-color: #444; }
 
-  #chat-list {
-    flex: 1;
-    overflow-y: auto;
-  }
-
+  #chat-list { flex: 1; overflow-y: auto; }
   .chat-item {
-    padding: 10px;
+    padding: 10px 12px;
     margin-bottom: 4px;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    transition: background 0.2s;
+    color: var(--text-muted);
   }
-
-  .chat-item:hover { background: #222; }
-  .chat-item.active { background: #2a2a2a; border-left: 3px solid var(--accent); }
+  .chat-item:hover { background: #161616; color: white; }
+  .chat-item.active { background: #222; color: white; }
 
   /* Main Area */
   #main-container {
@@ -92,13 +91,13 @@
   }
 
   header {
-    padding: 14px;
-    border-bottom: 1px solid var(--border);
+    padding: 18px;
     font-weight: 600;
-    font-size: 14px;
-    color: var(--text-muted);
+    font-size: 15px;
+    color: var(--text-main);
     text-align: center;
-    background: rgba(13, 13, 13, 0.8);
+    background: rgba(13, 13, 13, 0.7);
+    backdrop-filter: blur(10px);
   }
 
   #chat-window {
@@ -109,58 +108,90 @@
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
     overflow-y: auto;
+    scrollbar-width: none;
   }
 
-  /* Messages */
-  .msg { max-width: 85%; padding: 12px 18px; border-radius: 15px; font-size: 15px; line-height: 1.5; }
-  .user { align-self: flex-end; background: var(--user-msg-bg); }
-  .ai { align-self: flex-start; background: var(--ai-msg-bg); border: 1px solid var(--border); }
+  .msg { max-width: 85%; padding: 14px 20px; border-radius: 20px; font-size: 15px; line-height: 1.6; }
+  .user { align-self: flex-end; background: var(--user-msg-bg); border-bottom-right-radius: 4px; }
+  .ai { align-self: flex-start; background: var(--ai-msg-bg); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
 
-  /* Input Area */
-  .input-area { padding: 20px; background: transparent; }
-  .input-bar {
-    max-width: 760px;
+  /* --- NEW INPUT BOX DESIGN --- */
+  .input-container {
+    width: 100%;
+    max-width: 840px;
     margin: 0 auto;
-    display: flex;
-    align-items: center;
+    padding: 0 20px 32px 20px;
+    box-sizing: border-box;
+  }
+
+  .input-wrapper {
     background: var(--card-bg);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 8px 12px;
+    border-radius: 24px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   }
 
-  textarea {
+  .input-wrapper:focus-within {
+    border-color: var(--input-focus);
+    background: #222;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+  }
+
+  #user-input {
     flex: 1;
     background: transparent;
     border: none;
     outline: none;
-    color: white;
+    color: #fff;
     font-size: 16px;
-    height: 24px;
+    font-family: inherit;
+    padding: 8px 4px;
+    margin: 0;
     resize: none;
+    line-height: 1.5;
+    max-height: 200px;
   }
 
-  /* Fixed Send Button */
   .send-btn {
-    background: var(--accent);
+    background: #fff; /* Modern white button with black icon */
     border: none;
-    border-radius: 6px;
-    width: 32px;
-    height: 32px;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    margin-bottom: 4px;
+    transition: transform 0.2s, opacity 0.2s;
     flex-shrink: 0;
-    padding: 0;
   }
 
+  .send-btn:hover {
+    transform: scale(1.05);
+  }
+
+  .send-btn:active {
+    transform: scale(0.95);
+  }
+
+  .send-btn:disabled {
+    opacity: 0.2;
+    cursor: not-allowed;
+  }
+
+  /* Fixed SVG Icon styling */
   .send-btn svg {
-    width: 18px;
-    height: 18px;
-    fill: white;
+    width: 20px;
+    height: 20px;
+    fill: #000; /* Contrast against white button */
     display: block;
   }
 
@@ -169,30 +200,30 @@
     position: fixed;
     background: #222;
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 5px 0;
+    border-radius: 12px;
+    padding: 6px;
     display: none;
     z-index: 1000;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.7);
   }
 
   .menu-item {
-    padding: 8px 20px;
+    padding: 10px 20px;
     cursor: pointer;
     font-size: 14px;
+    border-radius: 6px;
   }
-
-  .menu-item:hover { background: var(--accent); }
+  .menu-item:hover { background: var(--accent); color: white; }
 
   .typing-circle {
     display: inline-block;
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     background: white;
     border-radius: 50%;
+    margin-right: 4px;
     animation: pulse 1s infinite;
   }
-  @keyframes pulse { 0%,100% {opacity:0.3; transform:scale(0.8)} 50% {opacity:1; transform:scale(1)} }
 </style>
 </head>
 <body>
@@ -201,7 +232,8 @@
 
 <aside id="sidebar">
   <button class="new-chat-btn" onclick="startNewChat()">
-    + New Chat
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    New Chat
   </button>
   <div id="chat-list"></div>
 </aside>
@@ -209,11 +241,14 @@
 <main id="main-container">
   <header>ChatGPT Open-Source 1.0</header>
   <div id="chat-window"></div>
-  <div class="input-area">
-    <div class="input-bar">
-      <textarea id="user-input" placeholder="Message AI..."></textarea>
+  
+  <div class="input-container">
+    <div class="input-wrapper">
+      <textarea id="user-input" placeholder="Message ChatGPT..." rows="1"></textarea>
       <button id="send-btn">
-        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        <svg viewBox="0 0 24 24">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+        </svg>
       </button>
     </div>
   </div>
@@ -240,27 +275,28 @@
   class Meteor {
     constructor() { this.reset(); }
     reset() {
-      this.x = Math.random() * canvas.width;
-      this.y = -20;
-      this.speed = 2 + Math.random() * 5;
-      this.len = 10 + Math.random() * 20;
+      this.x = Math.random() * canvas.width * 1.5; 
+      this.y = -100;
+      this.speed = 1.5 + Math.random() * 3;
+      this.len = 40 + Math.random() * 60;
+      this.opacity = 0.1 + Math.random() * 0.4;
     }
     update() {
       this.y += this.speed;
-      this.x += this.speed * 0.5;
-      if (this.y > canvas.height) this.reset();
+      this.x -= this.speed * 0.8;
+      if (this.y > canvas.height + 100) this.reset();
     }
     draw() {
-      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.strokeStyle = `rgba(255, 255, 255, ${this.opacity})`;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(this.x, this.y);
-      ctx.lineTo(this.x - this.len, this.y - this.len);
+      ctx.lineTo(this.x + this.len * 0.5, this.y - this.len);
       ctx.stroke();
     }
   }
 
-  for(let i=0; i<15; i++) meteors.push(new Meteor());
+  for(let i=0; i<10; i++) meteors.push(new Meteor());
 
   function animate() {
     ctx.clearRect(0,0,canvas.width, canvas.height);
@@ -326,17 +362,18 @@
     if (!text || !currentChatId) return;
 
     const chat = chats.find(c => c.id === currentChatId);
-    if(chat.messages.length === 0) chat.title = text.substring(0, 20);
+    if(chat.messages.length === 0) chat.title = text.substring(0, 25);
 
     chat.messages.push({ role: 'user', content: text });
     displayMessage('user', text);
     input.value = '';
+    input.style.height = 'auto';
     
-    const aiMsg = { role: 'ai', content: '' };
     const aiDiv = document.createElement('div');
     aiDiv.className = 'msg ai';
-    aiDiv.innerHTML = '<span class="typing-circle"></span>';
+    aiDiv.innerHTML = '<span class="typing-circle"></span><span class="typing-circle" style="animation-delay:0.2s"></span><span class="typing-circle" style="animation-delay:0.4s"></span>';
     chatWindow.appendChild(aiDiv);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
 
     try {
       const res = await fetch("https://coollamaceo-chatgptopensource1-0.hf.space/chat", {
@@ -345,12 +382,12 @@
         body: JSON.stringify({ session_id: currentChatId, message: text })
       });
       const data = await res.json();
-      aiMsg.content = data.response;
-      chat.messages.push(aiMsg);
+      chat.messages.push({ role: 'ai', content: data.response });
       aiDiv.innerHTML = parseMarkdown(data.response);
       saveToCache();
+      chatWindow.scrollTop = chatWindow.scrollHeight;
     } catch (e) {
-      aiDiv.innerText = "Connection Error.";
+      aiDiv.innerText = "Error: Connection lost.";
     }
   }
 
@@ -366,7 +403,7 @@
   window.onclick = () => contextMenu.style.display = 'none';
 
   function renameChat() {
-    const newName = prompt("Enter new name:");
+    const newName = prompt("Rename chat to:");
     if(newName) {
       const chat = chats.find(c => c.id === rightClickedChatId);
       chat.title = newName;
@@ -379,21 +416,30 @@
     if(currentChatId === rightClickedChatId) {
         chatWindow.innerHTML = '';
         currentChatId = null;
+        if(chats.length > 0) loadChat(chats[0].id);
     }
     saveToCache();
   }
 
-  /* --- MARKDOWN (Simplified) --- */
   function parseMarkdown(t) {
-    return t.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+    return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+            .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
             .replace(/```([\s\S]*?)```/g, '<pre>$1</pre>')
             .replace(/`([^`]+)`/g, '<code>$1</code>');
   }
 
   sendBtn.addEventListener('click', sendMessage);
-  input.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+  input.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = this.scrollHeight + 'px';
+  });
+  input.addEventListener('keydown', e => { 
+    if(e.key === 'Enter' && !e.shiftKey) { 
+      e.preventDefault(); 
+      sendMessage(); 
+    } 
+  });
 
-  // Init
   if(chats.length > 0) loadChat(chats[0].id); else startNewChat();
 </script>
 </body>
