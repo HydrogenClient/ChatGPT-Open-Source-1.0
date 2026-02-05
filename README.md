@@ -14,6 +14,8 @@ A live instance of the AI API is available at:
 This allows you to try the interface without setting up your own API.  
 The backend is fully open-source, so you can inspect, modify, or host it yourself.
 
+> Note: The hosted API may go to sleep after periods of inactivity, but it wakes up automatically when a user sends a message.
+
 ## Features
 
 - ✅ **Static web frontend**  
