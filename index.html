@@ -49,11 +49,11 @@
             margin-left: 8px;
         }
 
-        /* The Arrow Icon itself */
+        /* The Arrow Icon (UPWARD facing) */
         #send-btn svg {
             fill: #212121; /* Dark icon on gray background */
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
         }
 
         /* Active State: White background, Black arrow */
@@ -74,8 +74,9 @@
         <div class="input-box">
             <input type="text" id="user-input" placeholder="Message ChatGPT Open-Source 1.0..." autocomplete="off">
             <button id="send-btn" onclick="send()">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 11L12 6L17 11M12 18V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 6V18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </button>
         </div>
@@ -111,6 +112,7 @@
             window.scrollTo(0, document.body.scrollHeight);
 
             try {
+                // Corrected endpoint from your previous URL discovery
                 const res = await fetch('https://coollamaceo-chatgptopensource1-0.hf.space/chat', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
