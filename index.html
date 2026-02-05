@@ -1,147 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChatGPT Open-Source 1.0</title>
-<style>
-    body {
-        background: #212121;
-        color: #ececec;
-        font-family: sans-serif;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-    }
-    #chat-window {
-        flex: 1;
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-        padding-bottom: 150px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        overflow-y: auto;
-    }
-    .msg {
-        line-height: 1.5;
-        padding: 10px 15px;
-        border-radius: 8px;
-        max-width: 80%;
-        word-wrap: break-word;
-    }
-    .user {
-        background: #2f2f2f;
-        align-self: flex-end;
-        color: #fff;
-    }
-    .ai {
-        background: #333;
-        align-self: flex-start;
-        color: #fff;
-    }
-    .input-area {
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-        background: #212121;
-        padding: 20px 0;
-    }
-    .input-box {
-        max-width: 768px;
-        margin: 0 auto;
-        background: #2f2f2f;
-        border-radius: 25px;
-        display: flex;
-        padding: 10px 20px;
-        border: 1px solid #424242;
-    }
-    input {
-        flex: 1;
-        background: transparent;
-        border: none;
-        color: white;
-        outline: none;
-        font-size: 16px;
-    }
-    button {
-        background: #676767;
-        border: none;
-        color: white;
-        border-radius: 50%;
-        width: 35px;
-        height: 35px;
-        cursor: pointer;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT Open-Source 1.0</title>
+    <style>
+        body { background: #212121; color: #ececec; font-family: sans-serif; margin: 0; }
+        #chat-window { max-width: 800px; margin: 0 auto; padding: 20px; padding-bottom: 150px; display: flex; flex-direction: column; }
+        .msg { margin-bottom: 20px; line-height: 1.5; padding: 12px 16px; border-radius: 12px; max-width: 85%; }
+        .user { background: #2f2f2f; align-self: flex-end; border: 1px solid #424242; }
+        .ai { background: transparent; align-self: flex-start; }
+        .input-area { position: fixed; bottom: 0; width: 100%; background: #212121; padding: 24px 0; }
+        
+        /* Modern Pill Input Bar */
+        .input-box { 
+            max-width: 768px; 
+            margin: 0 auto; 
+            background: #2f2f2f; 
+            border-radius: 30px; /* Pill shape */
+            display: flex; 
+            padding: 8px 12px 8px 20px; 
+            border: 1px solid #424242; 
+            align-items: center;
+        }
 
-    /* Single white circle typing indicator */
-    .typing-circle {
-        display: inline-block;
-        width: 12px;
-        height: 12px;
-        margin-left: 5px;
-        background: white;
-        border-radius: 50%;
-        animation: pulse 1s infinite ease-in-out;
-    }
-    @keyframes pulse {
-        0%, 100% { transform: scale(0.5); opacity: 0.3; }
-        50% { transform: scale(1.2); opacity: 1; }
-    }
-</style>
+        input { 
+            flex: 1; 
+            background: transparent; 
+            border: none; 
+            color: white; 
+            outline: none; 
+            font-size: 16px; 
+            height: 40px;
+        }
+
+        /* Dynamic Button Styling */
+        #send-btn { 
+            background: #3c3c3c; /* Default Gray */
+            border: none; 
+            color: #212121; 
+            border-radius: 50%; 
+            width: 36px; 
+            height: 36px; 
+            cursor: pointer; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease, color 0.2s ease;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* Active State (Second Image Style) */
+        #send-btn.active { 
+            background: #ffffff; 
+            color: #000000; 
+        }
+
+        .thinking { font-style: italic; color: #888; margin-top: 10px; }
+    </style>
 </head>
 <body>
-
-<div id="chat-window"></div>
-
-<div class="input-area">
-    <div class="input-box">
-        <input type="text" id="user-input" placeholder="Message ChatGPT Open-Source 1.0...">
-        <button onclick="send()">↑</button>
+    <div id="chat-window"></div>
+    <div class="input-area">
+        <div class="input-box">
+            <input type="text" id="user-input" placeholder="Message ChatGPT Open-Source 1.0..." autocomplete="off">
+            <button id="send-btn" onclick="send()">↑</button>
+        </div>
     </div>
-</div>
 
-<script>
-const sessionId = Math.random().toString(36).substring(7);
-const chatWindow = document.getElementById('chat-window');
+    <script>
+        const sessionId = "user-" + Math.random().toString(36).substring(7);
+        const chatWindow = document.getElementById('chat-window');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
 
-async function send() {
-    const input = document.getElementById('user-input');
-    const text = input.value.trim();
-    if (!text) return;
-
-    // Add User Message
-    chatWindow.innerHTML += `<div class="msg user"><b>You:</b> ${text}</div>`;
-    input.value = '';
-    chatWindow.scrollTop = chatWindow.scrollHeight;
-
-    // Add AI message with pulsating circle
-    const thinking = document.createElement('div');
-    thinking.className = 'msg ai';
-    const circle = document.createElement('span');
-    circle.className = 'typing-circle';
-    thinking.appendChild(circle);
-    chatWindow.appendChild(thinking);
-    chatWindow.scrollTop = chatWindow.scrollHeight;
-
-    try {
-        const res = await fetch('https://coollamaceo-chatgptopensource1-0.hf.space/chat', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({message: text, session_id: sessionId})
+        // Logic to toggle button color based on text input
+        userInput.addEventListener('input', () => {
+            if (userInput.value.trim() !== "") {
+                sendBtn.classList.add('active');
+            } else {
+                sendBtn.classList.remove('active');
+            }
         });
-        const data = await res.json();
 
-        // Replace typing circle with AI response
-        thinking.innerHTML = `<b>AI:</b> ${data.response}`;
-    } catch (e) {
-        thinking.innerHTML = "Error connecting to server.";
-    }
-    chatWindow.scrollTop = chatWindow.scrollHeight;
-}
-</script>
+        async function send() {
+            const text = userInput.value.trim();
+            if (!text) return;
 
+            // Add User Message UI
+            chatWindow.innerHTML += `<div class="msg user"><b>You:</b> ${text}</div>`;
+            userInput.value = '';
+            sendBtn.classList.remove('active'); // Reset button color
+            
+            // Thinking State
+            const thinking = document.createElement('div');
+            thinking.className = 'msg ai thinking';
+            thinking.innerText = 'ChatGPT is thinking...';
+            chatWindow.appendChild(thinking);
+            window.scrollTo(0, document.body.scrollHeight);
+
+            try {
+                const res = await fetch('https://coollamaceo-chatgptopensource1-0.hf.space/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({message: text, session_id: sessionId})
+                });
+                const data = await res.json();
+                thinking.remove();
+                chatWindow.innerHTML += `<div class="msg ai"><b>AI:</b> ${data.response}</div>`;
+            } catch (e) {
+                thinking.innerText = "Error: Check if the Space is running.";
+            }
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        // Allow "Enter" key to send
+        userInput.addEventListener("keypress", (event) => {
+            if (event.key === "Enter") {
+                send();
+            }
+        });
+    </script>
 </body>
 </html>
