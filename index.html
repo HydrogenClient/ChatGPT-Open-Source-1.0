@@ -196,13 +196,13 @@
     scrollToBottom();
 
     try {
-      // Send memory + session_id to Hugging Face backend
+      // FIX: Changed "messages: conversationHistory" to "message: text" to match your backend
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           session_id: sessionId,
-          messages: conversationHistory
+          message: text 
         })
       });
       const data = await res.json();
