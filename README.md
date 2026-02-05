@@ -5,7 +5,14 @@
 The frontend is fully static and runs in the browser.  
 All AI inference is performed by the API you host and control.
 
+## Hosted API
+
+A live instance of the AI API is available at:
+
 [ChatGPT Open-Source 1.0 API on Hugging Face Spaces](https://huggingface.co/spaces/CooLLaMACEO/ChatGPTOpenSource1.0)
+
+This allows you to try the interface without setting up your own API.  
+The backend is fully open-source, so you can inspect, modify, or host it yourself.
 
 ## Features
 
