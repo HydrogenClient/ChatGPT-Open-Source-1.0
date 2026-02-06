@@ -29,7 +29,7 @@ header { padding:18px; font-weight:600; font-size:15px; text-align:center; backg
 .msg { max-width:80%; padding:12px 18px; border-radius:18px; font-size:16px; line-height:1.5; }
 .user { align-self:flex-end; background:var(--user-msg-bg); }
 .ai { align-self:flex-start; background:var(--ai-msg-bg); border:1px solid var(--border); }
-.typing-circle { display:inline-block; width:10px; height:10px; background:white; border-radius:50%; animation:pulse 1s infinite ease-in-out; }
+.typing-circle { display:inline-block; width:10px; height:10px; background:white; border-radius:50%; animation:pulse 1s infinite ease-in-out; margin-right:5px; }
 @keyframes pulse { 0%,100%{transform:scale(0.6);opacity:0.3;} 50%{transform:scale(1.1);opacity:1;} }
 .input-area-container { padding:20px 20px 40px 20px; background:linear-gradient(transparent, var(--bg-color) 40%); }
 .modern-input-box { max-width:900px; margin:0 auto; background:#202020; border-radius:32px; display:flex; align-items:flex-end; padding:10px 12px 10px 24px; gap:12px; box-shadow:0 4px 20px rgba(0,0,0,0.4); border:1px solid #2a2a2a; box-sizing:border-box; }
@@ -75,18 +75,14 @@ pre { background:#222; padding:10px; border-radius:8px; overflow-x:auto; }
 </div>
 
 <script>
-/* --- METEOR ANIMATION --- */
-const canvas=document.getElementById('meteor-canvas');
-const ctx=canvas.getContext('2d');
-let meteors=[];
-function resize(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
-window.addEventListener('resize', resize); resize();
-class Meteor{constructor(){this.reset();} reset(){this.x=Math.random()*canvas.width;this.y=-50;this.speed=2+Math.random()*3;this.len=20+Math.random()*40;this.opacity=0.1+Math.random()*0.4;} update(){this.y+=this.speed;this.x+=this.speed*0.5;if(this.y>canvas.height)this.reset();} draw(){ctx.strokeStyle=`rgba(255,255,255,${this.opacity})`;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(this.x,this.y);ctx.lineTo(this.x-this.len,this.y-this.len);ctx.stroke();}}
+/* --- METEOR --- */
+const canvas=document.getElementById('meteor-canvas'); const ctx=canvas.getContext('2d'); let meteors=[]; function resize(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; } window.addEventListener('resize',resize); resize();
+class Meteor{constructor(){this.reset();} reset(){this.x=Math.random()*canvas.width; this.y=-50; this.speed=2+Math.random()*3; this.len=20+Math.random()*40; this.opacity=0.1+Math.random()*0.4;} update(){this.y+=this.speed; this.x+=this.speed*0.5; if(this.y>canvas.height) this.reset();} draw(){ctx.strokeStyle=`rgba(255,255,255,${this.opacity})`; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(this.x,this.y); ctx.lineTo(this.x-this.len,this.y-this.len); ctx.stroke();}}
 for(let i=0;i<15;i++) meteors.push(new Meteor());
-function animate(){ ctx.clearRect(0,0,canvas.width,canvas.height); meteors.forEach(m=>{m.update();m.draw();}); requestAnimationFrame(animate); }
+function animate(){ ctx.clearRect(0,0,canvas.width,canvas.height); meteors.forEach(m=>{m.update(); m.draw();}); requestAnimationFrame(animate);}
 animate();
 
-/* --- CHAT LOGIC --- */
+/* --- CHAT --- */
 const chatWindow=document.getElementById('chat-window');
 const chatListEl=document.getElementById('chat-list');
 const input=document.getElementById('user-input');
@@ -97,41 +93,29 @@ let chats=JSON.parse(localStorage.getItem('ai_chats')||'[]');
 let currentChatId=null;
 let rightClickedChatId=null;
 
-function saveToCache(){ localStorage.setItem('ai_chats', JSON.stringify(chats)); renderChatList(); }
-function renderChatList(){ chatListEl.innerHTML=''; chats.forEach(chat=>{ const div=document.createElement('div'); div.className=`chat-item ${chat.id===currentChatId?'active':''}`; div.innerText=chat.title; div.onclick=()=>loadChat(chat.id); div.oncontextmenu=(e)=>showContextMenu(e, chat.id); chatListEl.appendChild(div); }); }
-function startNewChat(){ const id="chat-"+Date.now(); chats.unshift({id,title:'New Chat',messages:[]}); currentChatId=id; saveToCache(); loadChat(id); }
-function loadChat(id){ currentChatId=id; const chat=chats.find(c=>c.id===id); chatWindow.innerHTML=''; chat.messages.forEach(m=>displayMessage(m.role,m.content,false)); renderChatList(); }
-function parseMarkdown(t){ t=t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); return t.replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>').replace(/```([\s\S]*?)```/g,'<pre>$1</pre>').replace(/`([^`]+)`/g,'<code>$1</code>'); }
+function saveToCache(){ localStorage.setItem('ai_chats',JSON.stringify(chats)); renderChatList();}
+function renderChatList(){ chatListEl.innerHTML=''; chats.forEach(chat=>{ const div=document.createElement('div'); div.className=`chat-item ${chat.id===currentChatId?'active':''}`; div.innerText=chat.title; div.onclick=()=>loadChat(chat.id); div.oncontextmenu=(e)=>showContextMenu(e,chat.id); chatListEl.appendChild(div);});}
+function startNewChat(){ const id="chat-"+Date.now(); chats.unshift({id,title:'New Chat',messages:[]}); currentChatId=id; saveToCache(); loadChat(id);}
+function loadChat(id){ currentChatId=id; const chat=chats.find(c=>c.id===id); chatWindow.innerHTML=''; chat.messages.forEach(m=>displayMessage(m.role,m.content,false)); renderChatList();}
+function parseMarkdown(t){ t=t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); return t.replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>').replace(/```([\s\S]*?)```/g,'<pre>$1</pre>').replace(/`([^`]+)`/g,'<code>$1</code>');}
 
-/* --- DISPLAY MESSAGE --- */
-function displayMessage(role, content, animate=false){
-  const div=document.createElement('div');
-  div.className=`msg ${role}`;
-  chatWindow.appendChild(div);
-  chatWindow.scrollTop=chatWindow.scrollHeight;
+/* --- DISPLAY --- */
+function displayMessage(role,content,animate=false){
+  const div=document.createElement('div'); div.className=`msg ${role}`;
+  chatWindow.appendChild(div); chatWindow.scrollTop=chatWindow.scrollHeight;
 
   if(role==='ai' && animate){
-    const circle=document.createElement('span');
-    circle.className='typing-circle';
-    div.appendChild(circle);
-    chatWindow.scrollTop=chatWindow.scrollHeight;
+    const circle=document.createElement('span'); circle.className='typing-circle';
+    div.appendChild(circle); chatWindow.scrollTop=chatWindow.scrollHeight;
 
-    setTimeout(()=>{
-      div.innerHTML='';
-      let index=0;
-      const interval=setInterval(()=>{
-        div.innerHTML+=parseMarkdown(content[index]);
-        index++;
-        chatWindow.scrollTop=chatWindow.scrollHeight;
-        if(index>=content.length) clearInterval(interval);
-      },50);
-    },1000);
+    return div; // return placeholder div for AI message
   } else {
     div.innerHTML=parseMarkdown(content);
   }
+  return null;
 }
 
-/* --- SEND MESSAGE --- */
+/* --- SEND --- */
 async function sendMessage(){
   const text=input.value.trim();
   if(!text||!currentChatId) return;
@@ -142,6 +126,9 @@ async function sendMessage(){
   displayMessage('user',text);
   input.value=''; input.style.height='auto';
 
+  // AI placeholder
+  const aiDiv = displayMessage('ai','',true);
+
   try{
     const res=await fetch("https://coollamaceo-chatgptopensource1-0.hf.space/chat",{
       method:'POST',
@@ -150,20 +137,32 @@ async function sendMessage(){
     });
     const data=await res.json();
     chat.messages.push({role:'ai',content:data.response});
-    displayMessage('ai',data.response,true);
+
+    // Animate letter by letter after thinking circle
+    setTimeout(()=>{
+      aiDiv.innerHTML=''; // remove circle
+      let idx=0;
+      const interval=setInterval(()=>{
+        aiDiv.innerHTML+=parseMarkdown(data.response[idx]);
+        chatWindow.scrollTop=chatWindow.scrollHeight;
+        idx++;
+        if(idx>=data.response.length) clearInterval(interval);
+      },50);
+    },1000);
+
     saveToCache();
   } catch(e){
-    displayMessage('ai',"Error connecting to AI.",false);
+    aiDiv.innerText="Error connecting to AI.";
   }
 }
 
-/* --- CONTEXT MENU --- */
+/* --- CONTEXT --- */
 function showContextMenu(e,id){ e.preventDefault(); rightClickedChatId=id; contextMenu.style.display='block'; contextMenu.style.left=e.pageX+'px'; contextMenu.style.top=e.pageY+'px'; }
 window.onclick=()=>contextMenu.style.display='none';
 function renameChat(){ const n=prompt("New name:"); if(n){ chats.find(c=>c.id===rightClickedChatId).title=n; saveToCache(); } }
 function deleteChat(){ chats=chats.filter(c=>c.id!==rightClickedChatId); saveToCache(); if(chats.length>0) loadChat(chats[0].id); else startNewChat(); }
 
-sendBtn.addEventListener('click', sendMessage);
+sendBtn.addEventListener('click',sendMessage);
 input.addEventListener('input',function(){ this.style.height='auto'; this.style.height=(this.scrollHeight)+'px'; if(this.scrollHeight>200){ this.style.overflowY='auto'; }else{ this.style.overflowY='hidden'; }});
 input.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMessage(); } });
 
