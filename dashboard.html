@@ -101,7 +101,8 @@
 
     generateBtn.addEventListener("click", async () => {
       try {
-        const res = await fetch("https://huggingface.co/spaces/CooLLaMACEO/ChatGPTOpenSourceAPI/api/generate");
+        // Hugging Face Space API
+        const res = await fetch("https://coollamaceo-chatgptopensourceapi.hf.space/api/generate");
         if (!res.ok) throw new Error("Failed to generate key");
         const data = await res.json();
         addKeyCard(data.api_key);
